@@ -194,6 +194,7 @@ class SparsePool(nn.Module):
                 cached_subsample = torch.zeros_like(output).index_add_(0, 
                                                                     index, 
                                                                     cached_activations.to(output.device))
+                norm = torch.zeros(ind_max).to(input.device).index_add_(0, index, torch.ones_like(index).float()) + self.eps
                 cached_subsample = cached_subsample / norm[:, None].float()
                 cached_full = self._cache[unique, :] / self._cache_norm[unique, None].float()
                 cv = (cached_subsample + cached_full.to(cached_subsample.device)).detach()
