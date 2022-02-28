@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-from layers import SetPool, MatrixLayer, MatrixLinear
+from exchangable_tensor.layers import SetPool, MatrixLayer, MatrixLinear
 
 class Encoder(nn.Module):
     def __init__(self, input_dim, units, functions="mean", activation="relu", embedding_pool="max"):
@@ -12,7 +12,7 @@ class Encoder(nn.Module):
         units = [input_dim] + units
         layers = []
         self.activation = activation
-        for i in xrange(1, len(units)):
+        for i in range(1, len(units)):
             axes = ["row", "column", "both"] if i < (len(units)-1) else []
             layers.append(MatrixLayer(units[i-1], units[i], functions[i-1], axes=axes))
         self.embeddings = [SetPool("row", embedding_pool, expand=True), 
@@ -40,7 +40,7 @@ class Decoder(nn.Module):
         units = [embedding_dim] + units
         layers = []
         self.activation = activation
-        for i in xrange(1, len(units)):
+        for i in range(1, len(units)):
             layers.append(MatrixLayer(units[i-1], units[i], functions[i-1]))
         self.layers = nn.ModuleList(layers)
 
@@ -65,7 +65,7 @@ class DenoisingAE(nn.Module):
         units = [input_dim] + units
         layers = []
         self.activation = activation
-        for i in xrange(1, len(units)):
+        for i in range(1, len(units)):
             layers.append(MatrixLayer(units[i-1], units[i], functions[i-1]))
         self.layers = nn.ModuleList(layers)
 

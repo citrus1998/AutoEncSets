@@ -8,7 +8,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import numpy as np
-CUDA = True
+CUDA = False # no cuda
 
 Encoder = exchangable_tensor.models.Encoder
 Decoder = exchangable_tensor.models.Decoder
@@ -59,7 +59,7 @@ def expected_val(pred):
     return torch.mm(softmax(pred).view((n*m, d)), p).view((n,m, 1)) 
 
 epochs = 1000
-for ep in xrange(epochs):
+for ep in range(epochs):
     optimizer.zero_grad()
     #print(train_id.size(), train_mask.size())
     embeddings = enc(train_id, train_mask)
