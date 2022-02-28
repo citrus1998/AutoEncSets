@@ -56,7 +56,7 @@ def expected_val(pred):
     p = Variable(torch.arange(1,6)).view((5,1))
     if CUDA:
         p = p.cuda()
-    return torch.mm(softmax(pred).view((n*m, d)), p).view((n,m, 1)) 
+    return torch.mm(softmax(pred).view((n*m, d)).float(), p.float()).view((n,m, 1)) 
 
 epochs = 1000
 for ep in range(epochs):
