@@ -60,20 +60,27 @@ def expected_val(pred):
 
 epochs = 1000
 for ep in range(epochs):
+
     optimizer.zero_grad()
+
     #print(train_id.size(), train_mask.size())
+
     embeddings = enc(train_id, train_mask)
     y_hat = dec(embeddings, train_mask)
+
     train_loss = ce(y_hat, train_id, train_mask)
+
     reg_loss = 0
     for p in pars:
         reg_loss += torch.sum(torch.pow(p, 2))
+
     loss = train_loss + 0.0001 * reg_loss
     loss.backward()
-    mse_train = mse(expected_val(y_hat), train_x, train_mask)
+    #print(torch.sum(torch.pow(expected_val(y_hat) - train_x.view(expected_val(y_hat).size()[0], expected_val(y_hat).size()[1], 1), 2) * train_mask).item() / torch.sum(train_mask).item())
+    mse_train = mse(expected_val(y_hat), train_x.view(expected_val(y_hat).size()[0], expected_val(y_hat).size()[1], 1), train_mask)
     optimizer.step()
     if ep % 1 == 0:
         val_hat = dec(enc(train_id, train_mask), val_mask)
-        mse_val = mse(expected_val(val_hat), val_x, val_mask)
+        mse_val = mse(expected_val(val_hat), val_x.view(expected_val(y_hat).size()[0], expected_val(y_hat).size()[1], 1), val_mask)
         val_loss = np.sqrt(mse_val.data[0])
-    print('Train Epoch: {}, Loss: {:.6f}, MSE: {:.6f}, Val_loss: {:.6f}'.format(ep, loss.data[0], np.sqrt(mse_train.data[0]), val_loss))
+    print('Train Epoch: {}, Loss: {:.6f}, MSE: {:.6f}, Val_loss: {:.6f}'.format(ep, loss.data.item(), np.sqrt(mse_train.data.item()), val_loss))

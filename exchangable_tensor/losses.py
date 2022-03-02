@@ -4,9 +4,11 @@ EPS = 1e-12
 
 def mse(predicted, target, mask=None):
     if mask is not None:
-        return torch.sum(torch.pow(predicted - target, 2) * mask) / torch.sum(mask)
+        ans = torch.sum(torch.pow(predicted - target, 2) * mask).item() / torch.sum(mask).item()
+        return torch.tensor([ans])
     else:
-        return torch.mean(torch.pow(predicted - target, 2))
+        ans = torch.mean(torch.pow(predicted - target, 2))
+        return torch.tensor([ans])
 
 def softmax(x, dim=-1):
     m = torch.clamp(torch.max(x, dim=dim, keepdim=True)[0], min=0.) 
