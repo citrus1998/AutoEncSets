@@ -26,6 +26,8 @@ parser.add_argument('--sampler', default='uniform', help='Which sampling method 
 args = parser.parse_args()
 use_cuda = not args.nocuda
 
+device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+
 def prep_data(x, requires_grad=False):
     '''
     Helper function for setting up data variables
@@ -195,9 +197,9 @@ for epoch in range(args.epochs):
     iterator = IndexIterator(iters_per_epoch, sampler, n_workers=1, epochs=1)
     for sampled_batch in tqdm(iterator):
         train_idx = sampled_batch['indicator'] == 0
-        target = torch.from_numpy((sampled_batch["target"][train_idx] - 1)).to("cuda").long()
-        input = torch.from_numpy(sampled_batch["input"][train_idx]).to("cuda")
-        index_train = torch.from_numpy(sampled_batch["index"][train_idx]).to("cuda")
+        target = torch.from_numpy((sampled_batch["target"][train_idx] - 1)).to(device).long()
+        input = torch.from_numpy(sampled_batch["input"][train_idx]).to(device)
+        index_train = torch.from_numpy(sampled_batch["index"][train_idx]).to(device)
         model.set_indices(index_train)
         optimizer.zero_grad()
         output = model(input)
@@ -211,10 +213,10 @@ for epoch in range(args.epochs):
         full_batch = data[np.arange(100000)]
         train_idx = full_batch['indicator'] == 0
         eval_idx = full_batch['indicator'] > 0
-        target = torch.from_numpy((full_batch["target"][eval_idx])).to("cuda").long()
-        input = torch.from_numpy(full_batch["input"][train_idx]).to("cuda")
-        index_train = torch.from_numpy(full_batch["index"][train_idx]).to("cuda")
-        index_eval = torch.from_numpy(full_batch["index"][eval_idx]).to("cuda")
+        target = torch.from_numpy((full_batch["target"][eval_idx])).to(device).long()
+        input = torch.from_numpy(full_batch["input"][train_idx]).to(device)
+        index_train = torch.from_numpy(full_batch["index"][train_idx]).to(device)
+        index_eval = torch.from_numpy(full_batch["index"][eval_idx]).to(device)
         model.set_indices(index_train, index_eval)
         test_loss = expected_mse(model(input), target.squeeze(1).float())
         tqdm.write("%d, %s, %s" % (epoch, l.cpu().data.numpy(), 
